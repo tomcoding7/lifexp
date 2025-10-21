@@ -161,10 +161,7 @@ export default function AddXPModal({ isOpen, onClose, onAddXP }: AddXPModalProps
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="What did you accomplish?"
-                  className="w-full px-4 py-3 bg-black/50 border border-gray-800 rounded-lg focus:ring-2 focus:border-transparent text-gray-200 placeholder-gray-600 font-medium"
-                  style={{ 
-                    focusRingColor: selectedConfig.color 
-                  }}
+                  className="w-full px-4 py-3 bg-black/50 border border-gray-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-200 placeholder-gray-600 font-medium"
                   required
                 />
               </div>
