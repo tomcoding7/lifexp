@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "LifeXP - Gamify Your Life",
-  description: "Track your personal growth with a gamified XP system",
+  title: "Hunter System - Level Up Your Life",
+  description: "Solo Leveling inspired life tracker. Complete daily missions, gain XP, and evolve beyond your limits.",
 };
 
 export default function RootLayout({

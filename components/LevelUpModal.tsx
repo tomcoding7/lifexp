@@ -2,8 +2,9 @@
 
 import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { Trophy, X } from 'lucide-react';
+import { Trophy, X, Zap } from 'lucide-react';
 import type { Stat } from '@/types';
+import { getRankForLevel } from '@/types';
 
 interface LevelUpModalProps {
   stat: Stat | null;
@@ -13,14 +14,9 @@ interface LevelUpModalProps {
 export default function LevelUpModal({ stat, onClose }: LevelUpModalProps) {
   useEffect(() => {
     if (stat) {
-      // Trigger confetti
+      // Epic confetti for level up
       const duration = 3000;
       const animationEnd = Date.now() + duration;
-      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
-
-      function randomInRange(min: number, max: number) {
-        return Math.random() * (max - min) + min;
-      }
 
       const interval: any = setInterval(function() {
         const timeLeft = animationEnd - Date.now();
@@ -29,18 +25,18 @@ export default function LevelUpModal({ stat, onClose }: LevelUpModalProps) {
           return clearInterval(interval);
         }
 
-        const particleCount = 50 * (timeLeft / duration);
+        const particleCount = 100 * (timeLeft / duration);
+        
         confetti({
-          ...defaults,
           particleCount,
-          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+          startVelocity: 40,
+          spread: 360,
+          ticks: 80,
+          origin: { x: 0.5, y: 0.5 },
+          colors: [stat.color, '#ffffff', '#ffd700'],
+          zIndex: 100,
         });
-        confetti({
-          ...defaults,
-          particleCount,
-          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-        });
-      }, 250);
+      }, 200);
 
       return () => clearInterval(interval);
     }
@@ -48,51 +44,113 @@ export default function LevelUpModal({ stat, onClose }: LevelUpModalProps) {
 
   if (!stat) return null;
 
+  const rank = getRankForLevel(stat.level);
+
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-in fade-in duration-300">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full shadow-2xl transform animate-in zoom-in duration-500">
-        <div className="p-8 text-center">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[80] flex items-center justify-center p-4 animate-in fade-in duration-300">
+      <div className="glass-dark rounded-2xl max-w-md w-full relative overflow-hidden border-2 shadow-2xl"
+        style={{ 
+          borderColor: stat.color,
+          boxShadow: `0 0 40px ${stat.glowColor}`
+        }}
+      >
+        {/* Animated background */}
+        <div 
+          className="absolute inset-0 opacity-20 animate-pulse"
+          style={{ backgroundColor: stat.color }}
+        />
+        
+        <div className="relative z-10 p-8 text-center">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <X className="w-5 h-5 text-gray-400" />
           </button>
 
-          <div className="mb-6 animate-bounce">
-            <div className="inline-block p-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mb-4">
-              <Trophy className="w-12 h-12 text-white" />
+          {/* Icon with glow */}
+          <div className="mb-6 relative">
+            <div 
+              className="inline-flex p-6 rounded-full animate-bounce"
+              style={{ 
+                backgroundColor: stat.color,
+                boxShadow: `0 0 40px ${stat.glowColor}, 0 0 80px ${stat.glowColor}`
+              }}
+            >
+              <Zap className="w-16 h-16 text-white" />
             </div>
           </div>
 
-          <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
-            Level Up! 🎉
-          </h2>
+          {/* Level Up Text */}
+          <div className="mb-4">
+            <h2 className="text-4xl font-bold font-orbitron mb-2 uppercase tracking-wider" 
+              style={{ 
+                color: stat.color,
+                textShadow: `0 0 20px ${stat.glowColor}`
+              }}
+            >
+              LEVEL UP!
+            </h2>
+            <p className="text-gray-400 text-sm uppercase tracking-wide">
+              System: Enhancement complete
+            </p>
+          </div>
           
-          <div className="text-6xl my-4">{stat.emoji}</div>
+          {/* Stat Info */}
+          <div className="text-6xl my-6 animate-bounce">{stat.emoji}</div>
           
-          <p className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            {stat.name}
-          </p>
+          <div className="mb-6 space-y-2">
+            <p className="text-xl font-orbitron uppercase tracking-wide text-gray-300">
+              {stat.name}
+            </p>
+            
+            <div className="inline-block px-6 py-3 bg-black/50 rounded-lg border"
+              style={{ borderColor: stat.color }}
+            >
+              <div className="text-5xl font-bold font-orbitron"
+                style={{ 
+                  color: stat.color,
+                  textShadow: `0 0 20px ${stat.glowColor}`
+                }}
+              >
+                {stat.level}
+              </div>
+              <div className="text-xs text-gray-500 uppercase tracking-wider">Level</div>
+            </div>
+          </div>
+
+          {/* Rank check */}
+          {stat.level === rank.minLevel && stat.level > 1 && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/50 rounded-lg">
+              <Trophy className="w-8 h-8 mx-auto mb-2 text-yellow-500" />
+              <p className="text-yellow-500 font-bold font-orbitron">
+                NEW RANK: {rank.name.toUpperCase()}
+              </p>
+            </div>
+          )}
           
-          <p className="text-4xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent mb-6">
-            Level {stat.level}
-          </p>
-          
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            You're making incredible progress! Keep up the amazing work! 🚀
-          </p>
+          <div className="mb-6 space-y-2">
+            <p className="text-gray-400">
+              You're evolving beyond your limits.
+            </p>
+            <p className="text-sm text-gray-500">
+              Continue growing stronger, Hunter.
+            </p>
+          </div>
 
           <button
             onClick={onClose}
-            className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:shadow-lg transition-all"
+            className="w-full py-4 font-bold rounded-lg hover:shadow-2xl transition-all duration-300 font-orbitron uppercase tracking-wider relative overflow-hidden group"
+            style={{ 
+              backgroundColor: stat.color,
+              boxShadow: `0 0 20px ${stat.glowColor}`
+            }}
           >
-            Continue
+            <span className="relative z-10 text-white">Continue Evolution</span>
+            <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </button>
         </div>
       </div>
     </div>
   );
 }
-
-
